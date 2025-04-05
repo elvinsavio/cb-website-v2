@@ -1,7 +1,6 @@
 import os
 import dotenv
 from flask import g
-from werkzeug.local import LocalProxy
 
 
 class Config:

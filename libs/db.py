@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, current_app
 from werkzeug.local import LocalProxy
 import pymongo
 from libs import config
@@ -15,7 +15,12 @@ def get_db():
         if not config.mongo_db:
             raise ValueError("Database name (config.mongo_db) must be a valid string.")
 
-        db = client[ config.mongo_db]
+        print(current_app.config.get("TESTING"))
+        db_name = config.mongo_db
+        if current_app.get("TESTING"):
+            db_name =  db_name + "_test"
+            
+        db = client[db_name]
 
         g._database = db
        
@@ -24,3 +29,13 @@ def get_db():
 
 # Use LocalProxy to read the global db instance with just `db`
 db = LocalProxy(get_db)
+
+
+def setup_indexes(_db):
+    _db.roles.create_index("name", unique=True)
+    _db.users.create_index("username", unique=True)
+    _db.users.create_index("email", unique=True)
+
+def drop_collections(_db):
+    _db.roles.drop()
+    _db.users.drop()

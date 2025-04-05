@@ -4,8 +4,12 @@ from flask import Flask
 
 from cli import register_commands
 
-app = Flask(__name__)
-register_commands(app)
+
+def create_app():
+    app = Flask(__name__)
+    register_commands(app)
+    return app
 
 if __name__ == "__main__":
+    app = create_app()
     app.run(debug=config.debug)

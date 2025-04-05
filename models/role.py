@@ -21,14 +21,12 @@ class Role:
             assert len(name) < 255, "name must be less than 255 characters"
 
         now = datetime.now()
-        try:
-            res = db.roles.insert_one({
-                "name": name,
-                "created_at": now,
-                "updated_at": now,
-            })
-        except DuplicateKeyError:
-            raise ValueError(f"Role with name '{name}' already exists")
+    
+        res = db["roles"].insert_one({
+            "name": name,
+            "created_at": now,
+            "updated_at": now,
+        })
 
         role = cls()
         role._id = res.inserted_id

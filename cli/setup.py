@@ -1,19 +1,16 @@
 import click
 from models import Role
-from libs import db
+from libs import db, setup_indexes, drop_collections
 from models.user import User
 
 def register_commands(app):
     @app.cli.command("setup")
-    def setup(test: bool = False):
+    def setup():
         """
         Setup the database.
         """
         print("Setting up database...")
-        db.roles.create_index("name", unique=True)
-        db.users.create_index("username", unique=True)
-        db.users.create_index("email", unique=True)
-        db.users.create_index("role_id")
+        setup_indexes(db)
 
         admin_role = Role.new("admin")
         _ = Role.new("editor")
@@ -35,5 +32,5 @@ def register_commands(app):
             return
 
         print("Dropping all collections...")
-        db.roles.drop()
+        drop_collections(db)
         print("All collections dropped.")
