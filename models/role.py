@@ -1,12 +1,18 @@
+from typing import Optional
+
 from datetime import datetime
+
 
 from libs import db
 
 from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 
+
 class Role:
-    def __init__(self,):
+    def __init__(
+        self,
+    ):
         self._id: ObjectId | None = None
         self.name: str | None = None
         self.created_at: datetime | None = None
@@ -21,12 +27,14 @@ class Role:
             assert len(name) < 255, "name must be less than 255 characters"
 
         now = datetime.now()
-    
-        res = db["roles"].insert_one({
-            "name": name,
-            "created_at": now,
-            "updated_at": now,
-        })
+
+        res = db["roles"].insert_one(
+            {
+                "name": name,
+                "created_at": now,
+                "updated_at": now,
+            }
+        )
 
         role = cls()
         role._id = res.inserted_id
@@ -36,14 +44,22 @@ class Role:
 
         return role
 
-        
     @classmethod
-    def get(cls, id: ObjectId):
+    def get(cls, id: Optional[ObjectId] = None, name: Optional[str] = None):
         if __debug__:
-            assert id is not None, "id is required"
-            assert isinstance(id, ObjectId), "id must be an ObjectId"
+            assert id is not None or name is not None, "Either 'id' or 'name' must be provided"
+            if id is not None:
+                assert isinstance(id, ObjectId), "'id' must be an ObjectId"
+            if name is not None:
+                assert isinstance(name, str), "'name' must be a string"
         
-        data = db.roles.find_one({"_id": id})
+        query = {}
+        if id:
+            query["_id"] = id
+        elif name:
+            query["name"] = name
+
+        data = db.roles.find_one(query)
         if data:
             role = cls()
             role._id = data["_id"]
@@ -52,7 +68,6 @@ class Role:
             role.updated_at = data["updated_at"]
             return role
         return None
-
 
     def to_dict(self):
         return {

@@ -11,8 +11,8 @@ def app():
     app.config["TESTING"] = True
     print("setting")
     with app.app_context():
-        drop_collections(db)
         setup_indexes(db)
         yield app
+        
         
         

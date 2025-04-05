@@ -1,7 +1,7 @@
 import click
-from models import Role
+from models import Role, User
 from libs import db, setup_indexes, drop_collections
-from models.user import User
+
 
 def register_commands(app):
     @app.cli.command("setup")
