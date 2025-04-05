@@ -15,9 +15,8 @@ def get_db():
         if not config.mongo_db:
             raise ValueError("Database name (config.mongo_db) must be a valid string.")
 
-        print(current_app.config.get("TESTING"))
         db_name = config.mongo_db
-        if current_app.get("TESTING"):
+        if current_app.config.get("TESTING", False):
             db_name =  db_name + "_test"
             
         db = client[db_name]

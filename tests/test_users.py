@@ -2,11 +2,10 @@ import pytest
 
 from pymongo.errors import DuplicateKeyError
 
-from models import User, Role
+from models import User
 
 
-def test_user_new_admin(app):
-    admin_role: Role | None = Role.get(name="admin")
+def test_user_new_admin(app, admin_role):
     assert admin_role is not None, "Admin role not found"
     password = "admin@123"
     user = User.new("admin", password, "admin@test.com", admin_role) 
@@ -20,8 +19,7 @@ def test_user_new_admin(app):
     assert user.updated_at is not None
     assert user.is_admin()
 
-def test_user_new_editor(app):
-    editor_role: Role | None = Role.get(name="editor")
+def test_user_new_editor(app, editor_role):
     assert editor_role is not None, "Editor role not found"
     password = "editor@123"
     user = User.new("editor", password, "editor@test.com", editor_role) 
@@ -35,10 +33,10 @@ def test_user_new_editor(app):
     assert user.updated_at is not None
     assert not user.is_admin()
 
-def test_duplicate_user(app):
-    admin_role: Role | None = Role.get(name="admin")
+def test_duplicate_user(app, admin_role):
     assert admin_role is not None, "Admin role not found"
     password = "admin@123"
+    _: User = User.new("admin", password, "admin@test.com", admin_role)
     with pytest.raises(DuplicateKeyError):
         User.new("admin", password, "admin@test.com", admin_role) 
     

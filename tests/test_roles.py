@@ -15,7 +15,7 @@ def test_role_new_editor(app):
     assert role.name == "editor"
     assert role._id is not None
 
-def test_duplicate_role(app):
+def test_duplicate_role(app, admin_role, editor_role):
     with pytest.raises(DuplicateKeyError):
         Role.new("admin")
     with pytest.raises(DuplicateKeyError):
