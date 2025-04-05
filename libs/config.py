@@ -8,7 +8,7 @@ class Config:
     def __init__(self):
         dotenv.load_dotenv()
 
-        self.name = os.getenv("APP_NAME")
+
         self.env = os.getenv("FLASK_ENV", "development")
         self.debug = self.env == "development"
         self.secret_key = os.getenv("SECRET_KEY")
@@ -19,8 +19,7 @@ class Config:
         
 
         if __debug__:
-            assert self.name is not None, "APP_NAME is not set"
-            assert self.env in ["development", "production"], "Invalid environment"
+            assert self.env in ["development", "production", "test"], "Invalid environment"
             assert self.secret_key is not None, "SECRET_KEY is not set"
             assert self.mongo_uri is not None, "MONGO_URI is not set"
             assert self.mongo_db is not None, "MONGO_DB is not set"

@@ -1,10 +1,10 @@
 from libs import config
-from cmd import register_commands
 
 from flask import Flask
 
+from cli import register_commands
 
-app = Flask(config.name)
+app = Flask(__name__)
 register_commands(app)
 
 if __name__ == "__main__":
