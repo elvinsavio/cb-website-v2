@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 
 from datetime import datetime
@@ -6,17 +7,16 @@ from datetime import datetime
 from libs import db
 
 from bson import ObjectId
-from pymongo.errors import DuplicateKeyError
 
 
 class Role:
     def __init__(
         self,
     ):
-        self._id: ObjectId | None = None
-        self.name: str | None = None
-        self.created_at: datetime | None = None
-        self.updated_at: datetime | None = None
+        self._id: ObjectId
+        self.name: str
+        self.created_at: datetime
+        self.updated_at: datetime 
 
     @classmethod
     def new(cls, name: str):
@@ -45,7 +45,7 @@ class Role:
         return role
 
     @classmethod
-    def get(cls, id: Optional[ObjectId] = None, name: Optional[str] = None):
+    def get(cls, id: Optional[ObjectId] = None, name: Optional[str] = None) -> "Role":
         if __debug__:
             assert id is not None or name is not None, "Either 'id' or 'name' must be provided"
             if id is not None:
@@ -67,7 +67,8 @@ class Role:
             role.created_at = data["created_at"]
             role.updated_at = data["updated_at"]
             return role
-        return None
+
+        raise ValueError("Role not found")
 
     def to_dict(self):
         return {
@@ -79,3 +80,8 @@ class Role:
 
     def __repr__(self):
         return f"<Role id={self._id} name={self.name}>"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Role):
+            return NotImplemented
+        return self._id == other._id

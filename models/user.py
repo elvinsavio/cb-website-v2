@@ -1,3 +1,4 @@
+from typing import Optional
 from datetime import datetime
 
 from bson import ObjectId
@@ -12,13 +13,12 @@ from libs import db
 
 class User:
     def __init__(self,):
-        self._id: ObjectId | None = None
-        self.username: str | None = None
-        self.password: bytes | None = None
-        self.email: str | None = None
-        self.role: ObjectId | None = None
-        self.created_at: datetime | None = None
-        self.updated_at: datetime | None = None
+        self._id: ObjectId
+        self.password: bytes
+        self.email: str 
+        self.role: Role 
+        self.created_at: datetime 
+        self.updated_at: datetime 
 
     @staticmethod
     def hash_password(password: str) -> bytes:
@@ -26,16 +26,14 @@ class User:
 
         
     @classmethod
-    def new(cls, username: str, password: str, email: str, role: Role):
+    def new(cls, email: str, password: str, role: Role):
         user = cls()
-        user.username = username
         user.password = cls.hash_password(password)
         user.email = email
-        user.role = role._id
+        user.role = role
         user.created_at = user.updated_at = datetime.now()
 
         res = db['users'].insert_one({
-            "username": user.username,
             "password": user.password,
             "email": user.email,
             "role_id": role._id,
@@ -47,14 +45,60 @@ class User:
 
         return user
 
-    def is_admin(self) -> bool:
+    
+    @classmethod
+    def get(cls, id: Optional[ObjectId] = None, email: Optional[str] = None) -> "User":
+        if __debug__:
+            assert id is not None or email is not None, "Either 'id' or 'name' must be provided"
+            if id is not None:
+                assert isinstance(id, ObjectId), "'id' must be an ObjectId"
+            if email is not None:
+                assert isinstance(email, str), "'email' must be a string"
+        
+        query = {}
+
+        if id:
+            query["_id"] = id
+        elif email:
+            query["email"] = email
+
+        data = db["users"].find_one(query)
+        if data:
+            user = cls()
+            user._id = data["_id"]
+            user.email = data["email"]
+            user.role = Role.get(id=data["role_id"])
+            user.password = data["password"]
+            user.created_at = data["created_at"]
+            user.updated_at = data["updated_at"]
+            return user
+
+        raise ValueError("User not found")
+
+    def is_admin(self) -> "User":
         admin = Role.get(name="admin")
-        return bool(admin and self.role == admin._id)
+        print(self.role, admin)
+        if self.role._id == admin._id:
+            return self
+        raise ValueError(f"User {self.email} is not an admin")
+
+    def is_editor(self) -> "User":
+        editor = Role.get(name="editor")
+        if self.role._id == editor._id:
+            return self 
+        raise ValueError(f"User {self.email} is not an editor")
+
+
+    def check_password(self, password: str) -> "User":
+        if __debug__:
+            assert isinstance(password, str), "'password' must be a string"
+        if checkpw(password.encode("utf-8"), self.password):
+            return self
+        raise ValueError("Invalid password")
 
     def to_dict(self):
         return {
             "_id": self._id,
-            "username": self.username,
             "password": self.password,
             "email": self.email,
             "role": self.role,
@@ -63,4 +107,4 @@ class User:
         }
     
     def __repr__(self):
-        return f"<User id={self._id} username={self.username}>"
+        return f"<User id={self._id} email={self.email}>"
