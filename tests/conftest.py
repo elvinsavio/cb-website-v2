@@ -3,7 +3,7 @@ import pytest
 from main import create_app
 
 from libs import setup_indexes, drop_collections, db
-from models.role import Role
+from models import Role, User
 
 @pytest.fixture
 def app():
@@ -21,3 +21,9 @@ def admin_role():
 @pytest.fixture
 def editor_role():
     return Role.new("editor")
+
+
+@pytest.fixture
+def user(app, admin_role):
+    password = "admin@123"
+    return User.new(email="admin@test.com", password=password, role=admin_role)
