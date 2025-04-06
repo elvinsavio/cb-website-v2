@@ -18,7 +18,7 @@ def register_commands(app):
         print("Creating admin")
         email = click.prompt("Enter email")
         password = click.prompt("Enter password", hide_input=True)
-        User.new("admin", password, email, admin_role)
+        User.new(email=email, password=password, role=admin_role)
         print("Database setup complete.")
         
     @app.cli.command("drop-all")
