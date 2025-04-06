@@ -8,6 +8,7 @@ from views import admin_blueprint
 
 def create_app():
     app = Flask(__name__)
+    app.secret_key = config.secret_key
     register_commands(app)
     app.register_blueprint(admin_blueprint)
 

@@ -6,13 +6,10 @@ Login
 {% endblock %}
 
 {% block content %}
-<h1>Login</h1>
-<form action="/admin/login" method="post">
-    <label for="username">Username</label>
-    <input type="text" name="username" id="username">
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password">
-    <button type="submit">Login</button>
-    <a href="/admin/register">Register</a>
-</form>
+<section class="flex flex-col items-center justify-center min-h-screen px-4 py-12 sm:px-6 lg:px-8">
+  <h3>Admin panel login</h3>
+  <form method="post" action="{{ url_for('admin.login') }}"
+    class="flex mt-3 flex-col rounded border border-border p-4"> {{ form|safe }}
+  </form>
+</section>
 {% endblock %}
