@@ -10,9 +10,9 @@ def app():
     app = create_app()
     app.config["TESTING"] = True
     with app.app_context():
-        drop_collections(db)
         setup_indexes(db)
         yield app
+        drop_collections(db)
         
 @pytest.fixture
 def admin_role():
