@@ -1,16 +1,30 @@
-from flask import flash, request, redirect, Blueprint, url_for, render_template
+import datetime
 
-from libs import FormBuilder
+import jwt
+from flask import flash, request, redirect, Blueprint, url_for, render_template, make_response
+
+from libs import FormBuilder, config
 
 from models import User
 
 admin_blueprint = Blueprint('admin', __name__, url_prefix='/admin')
 
 @admin_blueprint.get("/")
-def admin_lage():
-    header = request.headers.get("Authorization")
-    if header is None:
+def admin_page():
+    token = request.cookies.get("access_token")
+    if not token:
         return redirect(url_for("admin.login_page"))
+    
+    try:
+        _ = jwt.decode(token, config.jwt_secret, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        flash("Session expired. Please login again.", "warning")
+        return redirect(url_for("admin.login_page"))
+    except jwt.InvalidTokenError:
+        flash("Invalid token. Please login again.", "error")
+        return redirect(url_for("admin.login_page"))
+
+    # Optionally fetch user with payload['user_id']
     return "Admin page"
 
 @admin_blueprint.get("/login")
@@ -40,8 +54,14 @@ def login():
         flash(e.args[0], "error")
         return redirect(url_for("admin.login_page"))
     
-    
-    print(user)
+    payload = {
+        "user_id": str(user._id),
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(days=1)
+    }
+    token = jwt.encode(payload, config.jwt_secret, algorithm="HS256")
 
-    
-    return redirect(url_for("admin.login_page"))
+    # Create response with cookie
+    resp = make_response(redirect(url_for("admin.admin_page")))  # or wherever you want to redirect
+    resp.set_cookie("access_token", token, httponly=True, secure=True, samesite='Lax')
+
+    return resp
