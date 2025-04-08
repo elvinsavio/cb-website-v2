@@ -11,7 +11,6 @@ class FormBuilder:
         required=False,
         placeholder=None,
         help_text=None,
-        class_name=None,
     ):
         if __debug__:
             assert name is not None, "name is required"
@@ -26,7 +25,6 @@ class FormBuilder:
                 "required": required,
                 "placeholder": placeholder,
                 "help_text": help_text,
-                "class_name": class_name,
             }
         )
         return self
@@ -45,30 +43,27 @@ class FormBuilder:
                 "required": False,
                 "placeholder": None,
                 "help_text": None,
-                "class_name": None,
             }
         )
 
     def render(self):
         _form = ""
         for field in self.fields:
-            required_attr = 'required' if field['required'] else ''
-            placeholder = field['placeholder'] or ''
-            help_text = field['help_text'] or ''
-            class_name = field['class_name'] or ''
+            required_attr = "required" if field["required"] else ""
+            placeholder = field["placeholder"] or field["label"]
+            help_text = field["help_text"] or ""
 
             _form += f"""
-            <div class="{class_name}">
+            <div>
                 <label for="{field['name']}">{field['label']}</label>  
-                <input type="{field['type']}" name="{field['name']}" id="{field['name']}" placeholder="{placeholder}" class="{class_name}" {required_attr}>
-                <small class="form-text text-muted">{help_text}</small>   
+                <input type="{field['type']}" name="{field['name']}" id="{field['name']}" placeholder="{placeholder}" {required_attr}>
+                <small>{help_text}</small>   
             </div>
             """
-        
+
         for button in self.buttons:
             _form += f"""
-            <button type="{button['type']}" class="mt-3 {button['class_name']}">{button['label']}</button>
+            <button type="{button['type']}">{button['label']}</button>
             """
-
 
         return _form
