@@ -16,7 +16,7 @@ def admin_page():
         return redirect(url_for("admin.login_page"))
     
     try:
-        _ = jwt.decode(token, config.jwt_secret, algorithms=["HS256"])
+        user_data = jwt.decode(token, config.jwt_secret, algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
         flash("Session expired. Please login again.", "warning")
         return redirect(url_for("admin.login_page"))
@@ -25,7 +25,7 @@ def admin_page():
         return redirect(url_for("admin.login_page"))
 
     # Optionally fetch user with payload['user_id']
-    return "Admin page"
+    return render_template("admin/dashboard.html", email=user_data["email"])
 
 @admin_blueprint.get("/login")
 def login_page():
@@ -56,6 +56,7 @@ def login():
     
     payload = {
         "user_id": str(user._id),
+        "email": user.email,
         "exp": datetime.datetime.utcnow() + datetime.timedelta(days=1)
     }
     token = jwt.encode(payload, config.jwt_secret, algorithm="HS256")
@@ -64,4 +65,10 @@ def login():
     resp = make_response(redirect(url_for("admin.admin_page")))  # or wherever you want to redirect
     resp.set_cookie("access_token", token, httponly=True, secure=True, samesite='Lax')
 
+    return resp
+
+@admin_blueprint.get("/api/logout")
+def logout():
+    resp = make_response(redirect(url_for("admin.login_page")))
+    resp.set_cookie("access_token", "", expires=0)
     return resp
