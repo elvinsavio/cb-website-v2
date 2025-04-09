@@ -22,6 +22,7 @@ func Load() {
 	MongoURI = getEnv("MONGO_URI", "mongodb://localhost:27017")
 	DBName = getEnv("DB_NAME", "cb_website")
 	Port = getEnv("PORT", "8080")
+
 }
 
 func getEnv(key, fallback string) string {

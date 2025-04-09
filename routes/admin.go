@@ -1,25 +1,14 @@
 package routes
 
 import (
-	"net/http"
-
+	"github.com/elvinsavio/cb-website-v2/handlers"
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterAdminRoutes(r *gin.Engine) {
-	r.GET("/admin", func(c *gin.Context) {
-		cookie, err := c.Cookie("session_id")
+	admin := r.Group("/admin")
+	admin.GET("/login", handlers.RenderLoginPage)
+	// admin.POST("/login", handlers.HandleLogin)
+	// admin.GET("/", handlers.RenderAdminDashboard)
 
-		if err != nil || cookie == "" {
-			c.HTML(http.StatusOK, "login_page", gin.H{
-				"title": "Login",
-			})
-			return
-		}
-
-		c.HTML(http.StatusOK, "dashboard_page", gin.H{
-			"title":      "Dashboard",
-			"session_id": cookie,
-		})
-	})
 }
