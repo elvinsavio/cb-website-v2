@@ -15,10 +15,12 @@ type Role struct {
 
 func (r *Role) New() (*Role, error) {
 	collection := db.DB.Collection("roles")
-	_, err := collection.InsertOne(context.Background(), r)
+	_role, err := collection.InsertOne(context.Background(), r)
 	if err != nil {
 		return nil, err
 	}
+	role := _role.InsertedID.(primitive.ObjectID)
+	r.ID = role
 	return r, nil
 }
 

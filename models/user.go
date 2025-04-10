@@ -6,6 +6,7 @@ import (
 	"github.com/elvinsavio/cb-website-v2/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -17,11 +18,22 @@ type User struct {
 
 func (u *User) New() (*User, error) {
 	collection := db.DB.Collection("users")
-	_, err := collection.InsertOne(context.Background(), u)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 
 	if err != nil {
 		return nil, err
 	}
+
+	u.Password = string(hashedPassword)
+
+	_admin, err := collection.InsertOne(context.Background(), u)
+
+	if err != nil {
+		return nil, err
+	}
+
+	admin := _admin.InsertedID.(primitive.ObjectID)
+	u.ID = admin
 
 	return u, nil
 
