@@ -22,9 +22,20 @@ func (r *Role) New() (*Role, error) {
 	return r, nil
 }
 
-func (r *Role) Find(name string) (*Role, error) {
+func (r *Role) FindName(name string) (*Role, error) {
 	collection := db.DB.Collection("roles")
 	filter := bson.M{"name": name}
+	var role Role
+	err := collection.FindOne(context.Background(), filter).Decode(&role)
+	if err != nil {
+		return nil, err
+	}
+	return &role, nil
+}
+
+func (r *Role) FindID(id primitive.ObjectID) (*Role, error) {
+	collection := db.DB.Collection("roles")
+	filter := bson.M{"_id": id}
 	var role Role
 	err := collection.FindOne(context.Background(), filter).Decode(&role)
 	if err != nil {
