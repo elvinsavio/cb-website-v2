@@ -1,0 +1,19 @@
+{{ define "partials/login_form.html" }}
+
+<form hx-post="/admin/login" hx-swap="outerHTML">
+    <div>
+        <label for="username">Username</label>
+        <input type="text" name="username" placeholder="Username" required><br>
+    </div>
+    <div>
+        <label for="password">Password</label>
+        <input type="password" name="password" placeholder="Password" required><br>
+    </div>
+    <button type="submit">Login</button>
+</form>
+
+{{ if .Error }}
+<span class="error-message">{{ .Error }}</span>
+{{ end }}
+
+{{ end }}
