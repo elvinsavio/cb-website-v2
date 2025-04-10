@@ -66,13 +66,13 @@ var SetupCommand = &cli.Command{
 			return nil
 		}
 
-		admin_user := models.User{
-			Email:    c.String("email"),
-			Password: c.String("password"),
-			Role:     admin_role.ID,
-		}
+		admin_user := models.User{}
 
-		_, err = admin_user.New()
+		_, err = admin_user.New(
+			c.String("email"),
+			c.String("password"),
+			admin_role.ID,
+		)
 
 		if err != nil {
 			log.Fatalf("Creating admin user failed: %v", err)

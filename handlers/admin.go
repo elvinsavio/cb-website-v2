@@ -8,6 +8,7 @@ import (
 	"github.com/elvinsavio/cb-website-v2/config"
 	"github.com/elvinsavio/cb-website-v2/models"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,8 +29,17 @@ func HandleLogin(c *gin.Context) {
 	// password := c.PostForm("password")
 
 	user := &models.User{}
-	_, err := user.FindUser(username)
+	user, err := user.FindUser(username)
+	log.Println(user)
+	if err != nil {
+		c.HTML(http.StatusUnauthorized, "partials/login_form.html", gin.H{
+			"Error": "Invalid credentials",
+		})
+		return
+	}
 
+	password := []byte(c.PostForm("password"))
+	err = bcrypt.CompareHashAndPassword(user.Password, password)
 	if err != nil {
 		c.HTML(http.StatusUnauthorized, "partials/login_form.html", gin.H{
 			"Error": "Invalid credentials",

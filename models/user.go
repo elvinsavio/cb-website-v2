@@ -12,19 +12,22 @@ import (
 type User struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	Email    string             `bson:"email"`
-	Password string             `bson:"password"` // hashed
+	Password []byte             `bson:"password"` // hashed
 	Role     primitive.ObjectID `bson:"role"`
 }
 
-func (u *User) New() (*User, error) {
+func (u *User) New(email string, password string, role primitive.ObjectID) (*User, error) {
+
 	collection := db.DB.Collection("users")
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
 		return nil, err
 	}
 
-	u.Password = string(hashedPassword)
+	u.Email = email
+	u.Password = hashedPassword
+	u.Role = role
 
 	_admin, err := collection.InsertOne(context.Background(), u)
 
