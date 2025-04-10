@@ -8,9 +8,10 @@ import (
 )
 
 var (
-	MongoURI string
-	DBName   string
-	Port     string
+	MongoURI  string
+	DBName    string
+	Port      string
+	JwtSecret string
 )
 
 func Load() {
@@ -22,6 +23,7 @@ func Load() {
 	MongoURI = getEnv("MONGO_URI", "mongodb://localhost:27017")
 	DBName = getEnv("DB_NAME", "cb_website")
 	Port = getEnv("PORT", "8080")
+	JwtSecret = getEnv("JWT_SECRET", "secret")
 
 }
 

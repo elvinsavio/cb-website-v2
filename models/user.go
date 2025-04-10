@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/elvinsavio/cb-website-v2/db"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -24,4 +25,15 @@ func (u *User) New() (*User, error) {
 
 	return u, nil
 
+}
+
+func (u *User) FindUser(email string) (*User, error) {
+	collection := db.DB.Collection("users")
+	filter := bson.M{"email": email}
+	var user User
+	err := collection.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
